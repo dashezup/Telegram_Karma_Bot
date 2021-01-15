@@ -8,10 +8,19 @@ app = Client(":memory:",bot_token=bot_token,
         api_id=6,
         api_hash="eb06d4abfb49dc3eeb1aeb98ae0f581e")
 
+regex_upvote = (
+    r"^((?i)\+|\+\+|\+1|thx|tnx|ty|thank you|thanx|thanks|pro|cool|good|👍)$"
+)
+regex_downvote = (
+    r"^(\-|\-\-|\-1|👎)$"
+)
+
+
 
 @app.on_message(filters.command(['start']))
 async def start(_, message):
     await message.reply_text("Hey, I'm A Karma Bot, You Can Upvote Or Downvote Someone Using Me, Join @TheHamkerChat For Support!")
+
 
 @app.on_message(filters.command(['help']))
 async def help(_, message):
@@ -19,13 +28,14 @@ async def help(_, message):
 - To Downvote A Message.
 /karma To Check Karma Points Of This Group.''')
 
-@app.on_message(filters.regex("^\+"))
+
+@app.on_message(filters.regex(regex_upvote))
 async def upvote(_, message):
     if not message.reply_to_message:
         await message.reply_text("Reply To A Message To Upvote.")
         return
     if message.reply_to_message.from_user.id == message.from_user.id:
-        await message.reply_text("dafuq bruh.")
+        await message.reply_text("Public masturbation is not allowed.")
         return
 
     chat_id = message.chat.id
@@ -47,12 +57,14 @@ async def upvote(_, message):
         f3.write(json.dumps(members))
     await message.reply_text(f'Incremented Karma of {user_mention} By 1 \nTotal Points: {members[f"{user_id}"]}')
 
-@app.on_message(filters.regex("^\-"))
+@app.on_message(filters.regex(regex_downvote))
 async def downvote(_, message):
     if not message.reply_to_message:
         await message.reply_text("Reply To A Message To Downvote.")
         return
-
+    if message.reply_to_message.from_user.id == message.from_user.id:
+        await message.reply_text("Public masturbation is not allowed.")
+        return
     chat_id = message.chat.id
     user_id = message.reply_to_message.from_user.id
     user_mention = message.reply_to_message.from_user.mention
