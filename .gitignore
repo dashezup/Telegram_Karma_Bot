@@ -1,0 +1,12 @@
+# vim
+[._]*.sw[a-p]
+# python
+/venv/
+__pycache__/
+# tgbot
+/config.py
+/*.session
+/*.session-journal
+./*.json
+*.json
+/*.json
