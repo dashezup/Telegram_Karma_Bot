@@ -1,7 +1,8 @@
 import json
+import glob
 from os import path
 from pyrogram import Client, filters
-from config import bot_token
+from config import bot_token, owner_id
 
 app = Client(":memory:",bot_token=bot_token,
         api_id=6,
@@ -18,7 +19,7 @@ async def help(_, message):
 - To Downvote A Message.
 /karma To Check Karma Points Of This Group.''')
 
-@app.on_message(filters.regex("\+"))
+@app.on_message(filters.regex("^\+"))
 async def upvote(_, message):
     if not message.reply_to_message:
         await message.reply_text("Reply To A Message To Upvote.")
@@ -46,7 +47,7 @@ async def upvote(_, message):
         f3.write(json.dumps(members))
     await message.reply_text(f'Incremented Karma of {user_mention} By 1 \nTotal Points: {members[f"{user_id}"]}')
 
-@app.on_message(filters.regex("\-"))
+@app.on_message(filters.regex("^\-"))
 async def downvote(_, message):
     if not message.reply_to_message:
         await message.reply_text("Reply To A Message To Downvote.")
@@ -80,8 +81,21 @@ async def karma(_, message):
         with open(filename) as f2:
             members = json.load(f2)
         output = ""
-        for i in range(len(members)):
-            output += f"{(await app.get_users(list(members.keys())[i])).username}: {list(members.values())[i]}\n"    
+        m = 0
+        for i in members.keys():
+            print(i,m)
+            output += f"`{(await app.get_users(i)).username}: {list(members.values())[m]}`\n"
+            m += 1
         await message.reply_text(output)
+
+
+@app.on_message(filters.command(['backup']) & filters.user(owner_id))
+async def backup(_, message):
+    m = await message.reply_text("Sending..")
+    files = glob.glob('*.json')
+    for i in files:
+        await app.send_document(owner_id, i)
+    await m.edit("Backup Sent In Your PM")
+
 
 app.run()
